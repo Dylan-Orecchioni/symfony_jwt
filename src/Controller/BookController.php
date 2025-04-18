@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Serializer\AbstractNormalizer;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class BookController extends AbstractController
@@ -57,7 +58,7 @@ final class BookController extends AbstractController
      * @param EntityManagerInterface $em
      * @return JsonResponse
      */
-    public function createBook(Request $request, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator, EntityManagerInterface $em, AuthorRepository $authorRepository): JsonResponse
+    public function createBook(Request $request, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator, EntityManagerInterface $em, AuthorRepository $authorRepository, ValidateInterface $validate): JsonResponse
     {
         $book = $serializer->deserialize($request->getContent(), Book::class, 'json');
         
@@ -77,6 +78,13 @@ final class BookController extends AbstractController
         $jsonBook = $serializer->serialize($book, 'json', ['groups' => 'getBooks']);
 
         $location = $urlGenerator->generate('detailBook', ['id' => $book->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        // On vérifie les erreurs
+        $errors = $validate->validate($book);
+
+        if ($errors->count() > 0) {
+            return new JsonResponse($serializer->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
+        }
 
         return new JsonResponse($jsonBook, Response::HTTP_CREATED, ['Location' => $location], true);
     }

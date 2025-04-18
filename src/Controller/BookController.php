@@ -52,13 +52,14 @@ final class BookController extends AbstractController
     }
 
     #[Route('/api/books', name: 'createBook', methods: ['POST'])]
+    #[IsGranted("ROLE_ADMIN", statusCode: 403, message: "Vous ne pouvez pas créer de livre - vous devez avoir le rôle admin")]
     /**
      * @param Request $request
      * @param SerializerInterface $serializer
      * @param UrlGeneratorInterface $urlGenerator
      * @param EntityManagerInterface $em
      * @return JsonResponse
-     * @IsGranted("ROLE_ADMIN"; statusCode=404, message="Vous n'avez pas les droits suffisants pour créer un livre.")
+    
      */
     public function createBook(Request $request, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator, EntityManagerInterface $em, AuthorRepository $authorRepository, ValidateInterface $validate): JsonResponse
     {

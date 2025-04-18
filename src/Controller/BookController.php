@@ -14,6 +14,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Serializer\AbstractNormalizer;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 final class BookController extends AbstractController
 {
@@ -57,6 +58,7 @@ final class BookController extends AbstractController
      * @param UrlGeneratorInterface $urlGenerator
      * @param EntityManagerInterface $em
      * @return JsonResponse
+     * @IsGranted("ROLE_ADMIN"; statusCode=404, message="Vous n'avez pas les droits suffisants pour créer un livre.")
      */
     public function createBook(Request $request, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator, EntityManagerInterface $em, AuthorRepository $authorRepository, ValidateInterface $validate): JsonResponse
     {
